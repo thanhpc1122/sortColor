@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sắp Xếp Màu Sắc</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin-top: 20px;
+    }
+    #game {
+      margin-top: 20px;
+    }
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .cell {
+      width: 60px;
+      height: 60px;
+      margin: 5px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border 0.2s;
+    }
+    .selected {
+      border: 2px solid #000;
+    }
+    #info {
+      margin: 10px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sắp Xếp Màu Sắc</h1>
+  <div id="info">
+    Thời gian: <span id="timer">30</span>s | Màu trùng khớp: <span id="matchCount">0</span>
+  </div>
+  <div id="game">
+    <div class="grid" id="colorGrid"></div>
+  </div>
+
+  <script>
+    const DELAY = 50;
+    const BASE_TIME = 30;
+    let level = 1;
+    let timeLeft;
+    let timer;
+    let selectedCell = null;
+    let userColors = [];
+    let hiddenColors = [];
+
+    const colorGrid = document.getElementById('colorGrid');
+    const timerDisplay = document.getElementById('timer');
+    const matchDisplay = document.getElementById('matchCount');
+
+    const COLORS = [
+      '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#33FFF4',
+      '#F4FF33', '#FF9A33', '#8DFF33', '#FF3333', '#33A1FF', '#A1FF33'
+    ];
+
+    function shuffleArray(arr) {
+      return arr
+        .map(value => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value);
+    }
+
+    function generateColors(n) {
+      let picked = shuffleArray(COLORS).slice(0, n);
+      return shuffleArray(picked);
+    }
+
+    function renderGrid(colors) {
+      colorGrid.innerHTML = '';
+      colors.forEach((color, idx) => {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.style.backgroundColor = color;
+        cell.dataset.index = idx;
+        cell.addEventListener('click', () => handleClick(idx));
+        colorGrid.appendChild(cell);
+      });
+    }
+
+    function handleClick(index) {
+      if (selectedCell === null) {
+        selectedCell = index;
+        highlightSelected(index);
+      } else if (selectedCell === index) {
+        selectedCell = null;
+        clearHighlights();
+      } else {
+        [userColors[selectedCell], userColors[index]] = [userColors[index], userColors[selectedCell]];
+        selectedCell = null;
+        clearHighlights();
+        renderGrid(userColors);
+        setTimeout(checkMatch, DELAY);
+      }
+    }
+
+    function highlightSelected(index) {
+      const cells = document.querySelectorAll('.cell');
+      cells.forEach((cell, idx) => {
+        cell.classList.toggle('selected', idx === index);
+      });
+    }
+
+    function clearHighlights() {
+      document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('selected'));
+    }
+
+    function checkMatch() {
+      let count = 0;
+      for (let i = 0; i < userColors.length; i++) {
+        if (userColors[i] === hiddenColors[i]) count++;
+      }
+      matchDisplay.textContent = count;
+      if (count === userColors.length) {
+        clearInterval(timer);
+        setTimeout(() => {
+          alert(`Hoàn thành màn ${level}, sang màn tiếp theo!`);
+          level++;
+          startLevel();
+        }, 300);
+      }
+    }
+
+    function updateTimer() {
+      timerDisplay.textContent = timeLeft;
+      timeLeft--;
+      if (timeLeft < 0) {
+        clearInterval(timer);
+        alert('Hết thời gian! Trò chơi kết thúc.');
+        location.reload();
+      }
+    }
+
+    function startLevel() {
+      timeLeft = BASE_TIME + (level - 1) * 10;
+      const colorCount = level + 2;
+      userColors = generateColors(colorCount);
+      hiddenColors = [...userColors].sort();
+      renderGrid(userColors);
+      matchDisplay.textContent = 0;
+      clearInterval(timer);
+      timerDisplay.textContent = timeLeft;
+      timer = setInterval(updateTimer, 1000);
+    }
+
+    startLevel();
+  </script>
+</body>
+</html>
