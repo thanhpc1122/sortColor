@@ -68,9 +68,14 @@
     const matchDisplay = document.getElementById('matchCount');
 
     const COLORS = [
-      '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#33FFF4',
-      '#F4FF33', '#FF9A33', '#8DFF33', '#FF3333', '#33A1FF', '#A1FF33'
-    ];
+  '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#33FFF4',
+  '#F4FF33', '#FF9A33', '#8DFF33', '#FF3333', '#33A1FF', '#A1FF33',
+  '#FF66B2', '#66FF66', '#6666FF', '#FFFF66', '#FF9966', '#66FFFF',
+  '#9966FF', '#FF6699', '#66FF99', '#99FF66', '#6699FF', '#FFCC66',
+  '#66CCFF', '#CC66FF', '#99CC33', '#FF3366', '#66FFCC', '#FF66CC',
+  '#33FFCC', '#CCFF66'
+];
+
 
     function shuffleArray(arr) {
       return arr
@@ -150,16 +155,23 @@
     }
 
     function startLevel() {
-      timeLeft = BASE_TIME + (level - 1) * 10;
-      const colorCount = level + 2;
-      userColors = generateColors(colorCount);
-      hiddenColors = [...userColors].sort();
-      renderGrid(userColors);
-      matchDisplay.textContent = 0;
-      clearInterval(timer);
-      timerDisplay.textContent = timeLeft;
-      timer = setInterval(updateTimer, 1000);
-    }
+  const colorCount = level + 2;
+
+  if (colorCount > COLORS.length || level > 30) {
+    alert("🎉 Bạn đã hoàn thành 30 màn! Chúc mừng!");
+    return;
+  }
+
+  timeLeft = BASE_TIME + (level - 1) * 10;
+  userColors = generateColors(colorCount);
+  hiddenColors = [...userColors].sort();
+  renderGrid(userColors);
+  matchDisplay.textContent = 0;
+  clearInterval(timer);
+  timerDisplay.textContent = timeLeft;
+  timer = setInterval(updateTimer, 1000);
+}
+
 
     startLevel();
   </script>
