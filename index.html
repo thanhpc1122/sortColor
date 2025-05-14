@@ -137,7 +137,7 @@
       if (count === userColors.length) {
         clearInterval(timer);
         setTimeout(() => {
-          alert(`Hoàn thành màn ${level}, sang màn tiếp theo!`);
+          alert(`Hoàn thành màn ${level - 1}, sang màn tiếp theo!`);
           level++;
           startLevel();
         }, 300);
